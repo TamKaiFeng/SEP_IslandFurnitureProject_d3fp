@@ -5,13 +5,25 @@
  */
 package B_servlets;
 
+import HelperClasses.Member;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import javax.json.Json;
+import javax.json.JsonObject;
 
 /**
  *
@@ -33,16 +45,39 @@ public class ECommerce_GetMember extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ECommerce_GetMember</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ECommerce_GetMember at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
+            /* TODO output your page here. You may use following sample code. */ 
+            HttpSession session = request.getSession();
+            String memberEmail = (String) session.getAttribute("memberEmail");           
+            
+            Client client = ClientBuilder.newClient();            
+            WebTarget target = client.target("http://localhost:8080/IS3102_WebService-Student/webresources/entity.memberentity")
+                    .path("getUserOverview")
+                    .queryParam("email", memberEmail);
+            Invocation.Builder invocationBuilder = target.request();
+            Response resp = invocationBuilder.get();
+
+            if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+                String m = resp.readEntity(String.class);//The JsonObject returned from the Web Service
+
+                //Create a Member object
+                Member member = new Member();
+                JsonObject jsonObject = Json.createReader(new StringReader(m)).readObject();
+                member.setName(jsonObject.getString("name"));
+                member.setEmail(memberEmail);
+                member.setPhone(jsonObject.getString("phone"));
+                member.setCity(jsonObject.getString("city"));
+                member.setAddress(jsonObject.getString("address"));
+                member.setSecurityQuestion(jsonObject.getInt("securityquestion"));
+                member.setSecurityAnswer(jsonObject.getString("securityanswer"));
+                
+                //Create a session with a Member object
+                session.setAttribute("member", member);
+
+                response.sendRedirect("http://localhost:8080/IS3102_Project-war/B/SG/memberProfile.jsp");
+
+            }else{
+                out.print("fail");
+            }
         }
     }
 
