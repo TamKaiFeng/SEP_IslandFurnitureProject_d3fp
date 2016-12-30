@@ -62,7 +62,8 @@ public class ECommerce_GetMember extends HttpServlet {
                 //Create a Member object
                 Member member = new Member();
                 JsonObject jsonObject = Json.createReader(new StringReader(m)).readObject();
-                member.setName(jsonObject.getString("name"));
+                String memberName = jsonObject.getString("name");
+                member.setName(memberName);
                 member.setEmail(memberEmail);
                 member.setPhone(jsonObject.getString("phone"));
                 member.setCity(jsonObject.getString("city"));
@@ -72,6 +73,7 @@ public class ECommerce_GetMember extends HttpServlet {
                 
                 //Create a session with a Member object
                 session.setAttribute("member", member);
+                session.setAttribute("memberName", memberName);
 
                 response.sendRedirect("http://localhost:8080/IS3102_Project-war/B/SG/memberProfile.jsp");
 
