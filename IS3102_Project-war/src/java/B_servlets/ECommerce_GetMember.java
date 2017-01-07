@@ -58,7 +58,7 @@ public class ECommerce_GetMember extends HttpServlet {
 
             if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
                 String m = resp.readEntity(String.class);//The JsonObject returned from the Web Service
-
+                
                 //Create a Member object
                 Member member = new Member();
                 JsonObject jsonObject = Json.createReader(new StringReader(m)).readObject();
@@ -70,6 +70,8 @@ public class ECommerce_GetMember extends HttpServlet {
                 member.setAddress(jsonObject.getString("address"));
                 member.setSecurityQuestion(jsonObject.getInt("securityquestion"));
                 member.setSecurityAnswer(jsonObject.getString("securityanswer"));
+                member.setAge(jsonObject.getInt("age"));
+                member.setIncome(jsonObject.getInt("income"));
                 
                 //Create a session with a Member object
                 session.setAttribute("member", member);
