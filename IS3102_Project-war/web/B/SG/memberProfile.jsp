@@ -91,7 +91,7 @@
                                         <div class="form-group">
                                             <label>Country</label>
                                             <%if (member.getCity() != null && member.getCity() != "") {%>
-                                            <select name="country" disabled>
+                                            <select name="country">
                                                 <option value="<%=member.getCity()%>"><%=member.getCity()%></option>
                                                 <%} else {%>
                                                 <select name="country">
