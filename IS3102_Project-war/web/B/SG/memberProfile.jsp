@@ -78,7 +78,7 @@
                                         <h4>Personal Information</h4>
                                         <div class="form-group">
                                             <label>Name</label>
-                                            <input class="form-control" required="true" name="name" type="text" value="<%=member.getAge()%>">
+                                            <input class="form-control" required="true" name="name" type="text" value="<%=member.getName()%>">
                                         </div>
                                         <div class="form-group">
                                             <label>E-mail Address</label>
