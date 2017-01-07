@@ -55,6 +55,7 @@ public class ECommerce_MemberEditProfileServlet extends HttpServlet {
             String securityAnswer = request.getParameter("securityAnswer");
             int age = Integer.parseInt(request.getParameter("age"));
             int income = Integer.parseInt(request.getParameter("income"));
+            String password = request.getParameter("password");
             
             HttpSession session = request.getSession();
             String memberEmail = (String) session.getAttribute("memberEmail");
@@ -63,6 +64,7 @@ public class ECommerce_MemberEditProfileServlet extends HttpServlet {
             JsonObjectBuilder memberBuilder = Json.createObjectBuilder();
             JsonObject memberJson = memberBuilder
                     .add("name", name)
+                    .add("email", memberEmail)
                     .add("phone", phone)
                     .add("country", country)
                     .add("address", address)
@@ -70,28 +72,30 @@ public class ECommerce_MemberEditProfileServlet extends HttpServlet {
                     .add("securityAnswer", securityAnswer)
                     .add("age", age)
                     .add("income", income)
+                    .add("password", password != null ? password : "")
+                    //if password is null replace it with an empty string
                     .build();
             out.println(memberJson);
             
-//            Client client = ClientBuilder.newClient();            
-//            WebTarget target = client.target("http://localhost:8080/IS3102_WebService-Student/webresources/entity.memberentity")
-//                    .path("editMember")
-//                    .queryParam("member", member);
-//            Invocation.Builder invocationBuilder = target.request();
-//            Response resp = invocationBuilder.get();
-//
-//            if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
-//                String m = resp.readEntity(String.class);
-//                out.println(m);
-//
-//                
-//
-//                //response.sendRedirect("http://localhost:8080/IS3102_Project-war/B/SG/memberProfile.jsp");
-//                //response.sendRedirect("index.jsp");
-//
-//            }else{
-//                out.print("fail");
-//            }
+            Client client = ClientBuilder.newClient();            
+            WebTarget target = client.target("http://localhost:8080/IS3102_WebService-Student/webresources/entity.memberentity")
+                    .path("editMember")
+                    .queryParam("member", memberJson);
+            Invocation.Builder invocationBuilder = target.request();
+            Response resp = invocationBuilder.get();
+
+            if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+                String m = resp.readEntity(String.class);
+                out.println(m);
+
+                
+
+                //response.sendRedirect("http://localhost:8080/IS3102_Project-war/B/SG/memberProfile.jsp");
+                //response.sendRedirect("index.jsp");
+
+            }else{
+                out.print("fail");
+            }
             //-----------------
             out.println("<!DOCTYPE html>");
             out.println("<html>");
