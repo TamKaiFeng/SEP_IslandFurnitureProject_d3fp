@@ -74,7 +74,7 @@
                             <div class="tab-content">
                                 <div id="overview" class="tab-pane active">
                                     <%if (member != null) {%>
-                                    <form role="form" action="../../ECommerce_MemberEditProfileServlet" onsubmit="return validatePassword()">
+                                    <form role="form" action="../../ECommerce_MemberEditProfileServlet" onsubmit="return validatePassword()" method="POST">
                                         <h4>Personal Information</h4>
                                         <div class="form-group">
                                             <label>Name</label>
