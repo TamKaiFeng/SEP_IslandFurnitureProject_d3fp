@@ -8,11 +8,6 @@ package B_servlets;
 import HelperClasses.Member;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
-import javax.json.Json;
-import javax.json.JsonBuilderFactory;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,8 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -43,10 +41,9 @@ public class ECommerce_MemberEditProfileServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
+        response.setContentType("application/json");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            //-----------------
             String name = request.getParameter("name");
             String phone = request.getParameter("phone");
             String country = request.getParameter("country");
@@ -56,67 +53,57 @@ public class ECommerce_MemberEditProfileServlet extends HttpServlet {
             int age = Integer.parseInt(request.getParameter("age"));
             int income = Integer.parseInt(request.getParameter("income"));
             String password = request.getParameter("password");
-            
+
             HttpSession session = request.getSession();
             String memberEmail = (String) session.getAttribute("memberEmail");
-            
-            
-            JsonObjectBuilder memberBuilder = Json.createObjectBuilder();
-            JsonObject memberJson = memberBuilder
-                    .add("name", name)
-                    .add("email", memberEmail)
-                    .add("phone", phone)
-                    .add("country", country)
-                    .add("address", address)
-                    .add("securityQuestion", securityQuestion)
-                    .add("securityAnswer", securityAnswer)
-                    .add("age", age)
-                    .add("income", income)
-                    .add("password", password != null ? password : "")
-                    //if password is null replace it with an empty string
-                    .build();
-            out.println(memberJson);
-            
-            Client client = ClientBuilder.newClient();            
+
+            Member member = new Member();
+            member.setName(name);
+            member.setPhone(phone);
+            member.setCity(country);
+            member.setAddress(address);
+            member.setSecurityQuestion(securityQuestion);
+            member.setSecurityAnswer(securityAnswer);
+            member.setAge(age);
+            member.setIncome(income);
+
+            Client client = ClientBuilder.newClient();
             WebTarget target = client.target("http://localhost:8080/IS3102_WebService-Student/webresources/entity.memberentity")
                     .path("editMember")
-                    .queryParam("member", memberJson);
-            Invocation.Builder invocationBuilder = target.request();
-            Response resp = invocationBuilder.get();
+                    .queryParam("name", name)
+                    .queryParam("phone", phone)
+                    .queryParam("country", country)
+                    .queryParam("address", address)
+                    .queryParam("securityQuestion", securityQuestion)
+                    .queryParam("securityAnswer", securityAnswer)
+                    .queryParam("age", age)
+                    .queryParam("income", income)
+                    .queryParam("password", password)
+                    .queryParam("email", memberEmail);
 
-            if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+            Invocation.Builder invocationBuilder = target.request(MediaType.APPLICATION_JSON);
+            Response resp = invocationBuilder.put(Entity.entity(member, MediaType.APPLICATION_JSON));
+            out.println("status: " + resp.getStatus());
+
+            if (resp.getStatus() == Response.Status.CREATED.getStatusCode()) {
                 String m = resp.readEntity(String.class);
                 out.println(m);
+                out.println("status: " + resp.getStatus());
 
-                
+                response.sendRedirect("http://localhost:8080/IS3102_Project-war/ECommerce_GetMember");
 
-                //response.sendRedirect("http://localhost:8080/IS3102_Project-war/B/SG/memberProfile.jsp");
-                //response.sendRedirect("index.jsp");
-
-            }else{
-                out.print("fail");
+            } else {
+                out.println("<!DOCTYPE html>");
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>Servlet ECommerce_MemberEditProfileServlet</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>Servlet ECommerce_MemberEditProfileServlet at " + request.getContextPath() + "</h1>");
+                out.println("</body>");
+                out.println("</html>");
             }
-            //-----------------
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ECommerce_MemberEditProfileServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ECommerce_MemberEditProfileServlet at " + request.getContextPath() + "</h1>");
-            out.println(name);
-            out.println(phone);
-            out.println(country);
-            out.println(address);
-            out.println(securityQuestion);
-            out.println(securityAnswer);
-            out.println(age);
-            out.println(income);
-            out.println(memberEmail);           
-            out.println("</body>");
-            out.println("</html>");
-            
-            
+
         }
     }
 
