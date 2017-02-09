@@ -69,24 +69,49 @@ public class ECommerce_AddFurnitureToListServlet extends HttpServlet {
             Invocation.Builder invocationBuilder = target.request();
             Response resp = invocationBuilder.get();
 
-            if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
                 String m = resp.readEntity(String.class);
                 
-                ShoppingCartLineItem shoppingCartLineItem = new ShoppingCartLineItem();
-                shoppingCartLineItem.setId(id);
-                shoppingCartLineItem.setSKU(SKU);
-                shoppingCartLineItem.setPrice(price);
-                shoppingCartLineItem.setName(name);
-                shoppingCartLineItem.setImageURL(imageURL);
-                shoppingCartLineItem.setQuantity(Integer.parseInt(m));
+                HttpSession shoppingCartSession = request.getSession();//true (if no session create one)
+                ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (shoppingCartSession.getAttribute("shoppingCart"));
                 
-                HttpSession session = request.getSession();
-                ArrayList<ShoppingCartLineItem> al = new ArrayList();
-                al.add(shoppingCartLineItem);
-                session.setAttribute("shoppingCart", al);
+                if (shoppingCart == null) {
+                    ArrayList<ShoppingCartLineItem> newShoppingCart = new ArrayList();
+                    
+                    ShoppingCartLineItem shoppingCartLineItem = new ShoppingCartLineItem();
+                    shoppingCartLineItem.setId(id);
+                    shoppingCartLineItem.setSKU(SKU);
+                    shoppingCartLineItem.setPrice(price);
+                    shoppingCartLineItem.setName(name);
+                    shoppingCartLineItem.setImageURL(imageURL);
+                    shoppingCartLineItem.setQuantity(1);
+                    
+                    newShoppingCart.add(shoppingCartLineItem);
+                    shoppingCartSession.setAttribute("shoppingCart", newShoppingCart);
+                } else {
+                    for (ShoppingCartLineItem item : shoppingCart) {
+                        if (item.getId().equals(id)) {
+                            item.setQuantity(item.getQuantity() + 1);
+                            break;
+                        }
+                        else{
+                            ShoppingCartLineItem shoppingCartLineItem = new ShoppingCartLineItem();
+                            shoppingCartLineItem.setId(id);
+                            shoppingCartLineItem.setSKU(SKU);
+                            shoppingCartLineItem.setPrice(price);
+                            shoppingCartLineItem.setName(name);
+                            shoppingCartLineItem.setImageURL(imageURL);
+                            shoppingCartLineItem.setQuantity(1);
+                            
+                            shoppingCart.add(shoppingCartLineItem);
+                            shoppingCartSession.setAttribute("shoppingCart", shoppingCart);
+                            break;
+                        }
+                    }
+                }
                 
                 response.sendRedirect("http://localhost:8080/IS3102_Project-war/B/SG/shoppingCart.jsp");
-
+                
             } else {
                 out.print("fail");
             }

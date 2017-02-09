@@ -1,3 +1,5 @@
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Map"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="HelperClasses.ShoppingCartLineItem"%>
 <%@page import="EntityManager.WishListEntity"%>
@@ -17,7 +19,7 @@
         <script>
             var totalPrice = 0;
             for (var i = 0, n = shoppingCart.getItems().size; i < n; i++) {
-                totalPrice += shoppingCart.getItems().get(i).get
+                totalPrice += shoppingCart.getItems().get(i).get;
             }
             function removeItem() {
                 checkboxes = document.getElementsByName('delete');
@@ -48,9 +50,9 @@
                 document.shoppingCart.action = "../../ECommerce_MinusFurnitureToListServlet?SKU=" + SKU;
                 document.shoppingCart.submit();
             }
-            function plus(SKU, name, price, imageURL) {
+            function plus(id, SKU, name, price, imageURL) {
                 window.event.returnValue = true;
-                document.shoppingCart.action = "../../ECommerce_AddFurnitureToListServlet?SKU=" + SKU + "&price=" + price + "&name=" + name + "&imageURL=" + imageURL;
+                document.shoppingCart.action = "../../ECommerce_AddFurnitureToListServlet?id="+ id + "&SKU=" + SKU + "&price=" + price + "&name=" + name + "&imageURL=" + imageURL;
                 document.shoppingCart.submit();
             }
             function finalTotalPrice() {
@@ -125,11 +127,11 @@
                                                     </thead>
                                                     <tbody>
                                                         <%ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (session.getAttribute("shoppingCart"));
-                                                            try {
+                                                        double price;    
+                                                        try {
                                                                 if (shoppingCart != null && shoppingCart.size() > 0) {
-                                                                    for (ShoppingCartLineItem item : shoppingCart) {
-                                                                        
-
+                                                                    for (ShoppingCartLineItem item : shoppingCart) {                                                      
+                                                                         price = item.getPrice()*item.getQuantity();
                                                         %>
                                                         <tr class="cart_table_item">
                                                             <td class="product-remove">
@@ -152,19 +154,18 @@
                                                                 <form enctype="multipart/form-data" method="post" class="cart">
                                                                     <div class="quantity">
                                                                         <input type="button" class="minus" value="-" onclick="minus('<%=item.getSKU()%>')">
-                                                                        <input type="text" class="input-text qty text" title="Qty" value="1" name="quantity" min="1" step="1" id="<%=item.getSKU()%>">
-                                                                        <input type="button" class="plus" value="+" onclick="plus('<%=item.getSKU()%>', '<%=item.getName()%>',<%=item.getPrice()%>, '<%=item.getImageURL()%>')">
+                                                                        <input type="text" class="input-text qty text" title="Qty" value=<%=item.getQuantity()%> name="quantity" min="1" step="1" id="<%=item.getSKU()%>">
+                                                                        <input type="button" class="plus" value="+" onclick="plus('<%=item.getId()%>','<%=item.getSKU()%>', '<%=item.getName()%>',<%=item.getPrice()%>, '<%=item.getImageURL()%>')">
                                                                     </div>
                                                                 </form>
                                                             </td>
                                                             <td class="product-subtotal">
                                                                 $<span class="amount" id="totalPrice<%=item.getSKU()%>">
-                                                                    <%=item.getPrice()%>
+                                                                    <%=price%>
                                                                 </span>
                                                             </td>
                                                         </tr>
-                                                        <%                                                                    }
-                                                                    
+                                                        <%         } 
                                                                 }
                                                             } catch (Exception ex) {
                                                                 System.out.println(ex);
