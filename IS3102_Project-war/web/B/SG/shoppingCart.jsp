@@ -1,5 +1,3 @@
-<%@page import="java.util.HashMap"%>
-<%@page import="java.util.Map"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="HelperClasses.ShoppingCartLineItem"%>
 <%@page import="EntityManager.WishListEntity"%>
@@ -17,10 +15,6 @@
             double finalPrice = 0.0;
         %>
         <script>
-            var totalPrice = 0;
-            for (var i = 0, n = shoppingCart.getItems().size; i < n; i++) {
-                totalPrice += shoppingCart.getItems().get(i).get;
-            }
             function removeItem() {
                 checkboxes = document.getElementsByName('delete');
                 var numOfTicks = 0;
@@ -127,15 +121,16 @@
                                                     </thead>
                                                     <tbody>
                                                         <%ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (session.getAttribute("shoppingCart"));
-                                                        double price;    
+                                                        double price;
                                                         try {
                                                                 if (shoppingCart != null && shoppingCart.size() > 0) {
                                                                     for (ShoppingCartLineItem item : shoppingCart) {                                                      
                                                                          price = item.getPrice()*item.getQuantity();
+                                                                         finalPrice += price;
                                                         %>
                                                         <tr class="cart_table_item">
                                                             <td class="product-remove">
-                                                                <input type="checkbox" name="delete" value="" />
+                                                                <input type="checkbox" name="delete" value=<%=item.getId()%> />
                                                             </td>
                                                             <td class="product-thumbnail">
                                                                 <a href="furnitureProductDetails.jsp">
@@ -181,7 +176,7 @@
                                                             </td>
                                                             <td class="product-subtotal">
                                                                 $<span class="amount" id="finalPrice" name="finalPrice">
-                                                                    
+                                                                    <%=finalPrice%>
                                                                 </span>
                                                             </td>
                                                         </tr>

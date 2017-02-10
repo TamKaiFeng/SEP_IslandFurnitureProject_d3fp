@@ -5,6 +5,8 @@
  */
 package B_servlets;
 
+import java.util.HashMap;
+import java.util.Map;
 import HelperClasses.ShoppingCartLineItem;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -69,9 +71,13 @@ public class ECommerce_AddFurnitureToListServlet extends HttpServlet {
             Invocation.Builder invocationBuilder = target.request();
             Response resp = invocationBuilder.get();
 
-if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+            if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
                 String m = resp.readEntity(String.class);
-                
+                int allQuantity = Integer.parseInt(m);
+                if (allQuantity == 0){
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg=Item not added to cart, not enough quantity.");
+                }
+                else{
                 HttpSession shoppingCartSession = request.getSession();//true (if no session create one)
                 ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (shoppingCartSession.getAttribute("shoppingCart"));
                 
@@ -88,13 +94,13 @@ if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
                     
                     newShoppingCart.add(shoppingCartLineItem);
                     shoppingCartSession.setAttribute("shoppingCart", newShoppingCart);
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?goodMsg=Item added to cart.");
                 } else {
+                    Map<String,Integer> valid = new HashMap();
                     for (ShoppingCartLineItem item : shoppingCart) {
-                        if (item.getId().equals(id)) {
-                            item.setQuantity(item.getQuantity() + 1);
-                            break;
+                        valid.put(item.getId(),item.getQuantity());
                         }
-                        else{
+                        if(!valid.containsKey(id)){
                             ShoppingCartLineItem shoppingCartLineItem = new ShoppingCartLineItem();
                             shoppingCartLineItem.setId(id);
                             shoppingCartLineItem.setSKU(SKU);
@@ -105,13 +111,24 @@ if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
                             
                             shoppingCart.add(shoppingCartLineItem);
                             shoppingCartSession.setAttribute("shoppingCart", shoppingCart);
-                            break;
+                            response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?goodMsg=Item added to cart.");
+                        }
+                        else{
+                            for (ShoppingCartLineItem item : shoppingCart){
+                                if(item.getId().equals(id)){
+                                    item.setQuantity(item.getQuantity()+1);
+                                    if(item.getQuantity()>allQuantity ){
+                                        item.setQuantity(item.getQuantity()-1);
+                                        response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg=Item not added to cart, quantity exceeds current stock");
+                                    }else{
+                                        response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?goodMsg=Item added to cart.");
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
-                
-                response.sendRedirect("http://localhost:8080/IS3102_Project-war/B/SG/shoppingCart.jsp");
-                
             } else {
                 out.print("fail");
             }
