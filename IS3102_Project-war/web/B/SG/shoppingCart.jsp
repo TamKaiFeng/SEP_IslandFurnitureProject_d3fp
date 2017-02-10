@@ -205,7 +205,7 @@
                                                                 <label>Name on Card: </label>
                                                             </td>
                                                             <td style="padding: 5px">
-                                                                <input type="text" class="input-text text" title="name"id="txtName" required>                                                            
+                                                                <input type="text" class="input-text text" title="name" name="name" id="txtName" required>                                                            
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -213,7 +213,7 @@
                                                                 <label>Card Number: </label>
                                                             </td>
                                                             <td style="padding: 5px">
-                                                                <input type="text" class="input-text text " title="cardno" id="txtCardNo" required>
+                                                                <input type="text" class="input-text text " title="cardno" name="cardno" id="txtCardNo" required>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -221,7 +221,7 @@
                                                                 <label>CVV/CVC2: </label>
                                                             </td>
                                                             <td style="padding: 5px">
-                                                                <input type="text" class="input-text text " title="securitycode" id="txtSecuritycode" required>
+                                                                <input type="text" class="input-text text " title="securitycode" name="seccode" id="txtSecuritycode" required>
                                                             </td>
                                                         </tr>
 
@@ -230,7 +230,7 @@
                                                                 <label>Expiry Date: </label>
                                                             </td>
                                                             <td style="width: 300px">
-                                                                <select style="width: 120px; display: inline-block" class="dropdown-header" title="Month">
+                                                                <select style="width: 120px; display: inline-block" class="dropdown-header" title="Month" name="expmonth">
                                                                     <option>January</option>
                                                                     <option>February</option>
                                                                     <option>March</option>
@@ -244,7 +244,7 @@
                                                                     <option>November</option>
                                                                     <option>December</option>
                                                                 </select>
-                                                                <input type="text" style="width: 60px" class="input-text text" title="year" id="year" required>(eg: 2015)                                                        
+                                                                <input type="text" style="width: 60px" class="input-text text" title="year" name="expyr" id="year" required>(eg: 2015)                                                        
                                                             </td>
                                                         </tr>
                                                         <tr>

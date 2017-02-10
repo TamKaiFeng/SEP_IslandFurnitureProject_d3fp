@@ -30,8 +30,8 @@ import javax.ws.rs.core.Response;
  *
  * @author Tam
  */
-@WebServlet(name = "ECommerce_RemoveItemFromListServlet", urlPatterns = {"/ECommerce_RemoveItemFromListServlet"})
-public class ECommerce_RemoveItemFromListServlet extends HttpServlet {
+@WebServlet(name = "ECommerce_PaymentServlet", urlPatterns = {"/ECommerce_PaymentServlet"})
+public class ECommerce_PaymentServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -46,22 +46,16 @@ public class ECommerce_RemoveItemFromListServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-                String[] formData = (request.getParameterValues("delete"));
-                String removedItems = "";
+                String name = request.getParameter("name");
+                String cardNo = request.getParameter("cardno");
+                String secCode = request.getParameter("seccode");
+                String expMonth = request.getParameter("expmonth");
+                String expYear = request.getParameter("expyr");
+            
                 HttpSession shoppingCartSession = request.getSession(false);
                 ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (shoppingCartSession.getAttribute("shoppingCart"));
-                for(String id : formData){
-                    for(ShoppingCartLineItem item : shoppingCart){
-                        if(item.getId().equals(id)){
-                            shoppingCart.remove(item);
-                            removedItems += " " + item.getName() + ",";
-                            break;
-                        }
-                    }
-                }
-                removedItems = removedItems.substring(0, removedItems.length()-1);
-                shoppingCartSession.setAttribute("shoppingCart", shoppingCart);
-                response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?goodMsg=Removed " +formData.length +" entries: "+removedItems);
+                
+                response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?goodMsg=" + name);
         }
     }
 
