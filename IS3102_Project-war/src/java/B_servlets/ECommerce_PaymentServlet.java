@@ -34,7 +34,7 @@ import javax.ws.rs.core.Response;
 
 /**
  *
- * @author Shiro
+ * @author Tam
  */
 @WebServlet(name = "ECommerce_PaymentServlet", urlPatterns = {"/ECommerce_PaymentServlet"})
 public class ECommerce_PaymentServlet extends HttpServlet {
