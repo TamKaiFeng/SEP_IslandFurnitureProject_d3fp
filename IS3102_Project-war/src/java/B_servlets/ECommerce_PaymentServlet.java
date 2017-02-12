@@ -7,11 +7,17 @@ package B_servlets;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import HelperClasses.ShoppingCartLineItem;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.servlet.ServletException;
@@ -28,7 +34,7 @@ import javax.ws.rs.core.Response;
 
 /**
  *
- * @author Tam
+ * @author Shiro
  */
 @WebServlet(name = "ECommerce_PaymentServlet", urlPatterns = {"/ECommerce_PaymentServlet"})
 public class ECommerce_PaymentServlet extends HttpServlet {
@@ -46,16 +52,112 @@ public class ECommerce_PaymentServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
+                //Get values from form
                 String name = request.getParameter("name");
                 String cardNo = request.getParameter("cardno");
                 String secCode = request.getParameter("seccode");
                 String expMonth = request.getParameter("expmonth");
-                String expYear = request.getParameter("expyr");
-            
-                HttpSession shoppingCartSession = request.getSession(false);
-                ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (shoppingCartSession.getAttribute("shoppingCart"));
+                String expMonthNo = "";
+                switch(expMonth){
+                    case "January":
+                        expMonthNo = "01";
+                        break;
+                    
+                    case "February":
+                        expMonthNo = "02";
+                        break;
+                    
+                    case "March":
+                        expMonthNo = "03";
+                        break;
+                    
+                    case "April":
+                        expMonthNo = "04";
+                        break;
+                        
+                    case "May":
+                        expMonthNo = "05";
+                        break;
+                    
+                    case "June":
+                        expMonthNo = "06";
+                        break;
+                        
+                    case "July":
+                        expMonthNo = "07";
+                        break;
+                       
+                    case "August":
+                        expMonthNo = "08";
+                        break;
+                        
+                    case "September":
+                        expMonthNo = "09";
+                        break;
+                     
+                    case "October":
+                        expMonthNo = "10";
+                        break;
+                        
+                    case "November":
+                        expMonthNo = "11";
+                        break;
+                        
+                    case "December":
+                        expMonthNo = "12";
+                        break;
+                    
+                    default:
+                        break;
+                }
                 
-                response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?goodMsg=" + name);
+                String expYear = request.getParameter("expyr");
+                String expYearMonth = expYear + "-" + expMonthNo;
+                String result;
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
+                Date currentDate = new Date();
+                Date expDate = new Date();
+                 try {
+                expDate = dateFormat.parse(expYearMonth);
+                 } catch (ParseException ex) {
+                Logger.getLogger(ECommerce_PaymentServlet.class.getName()).log(Level.SEVERE, null, ex);
+                 }
+                if(name.equals("")){
+                    result = "No Name. Try again.";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else if(cardNo.equals("")){
+                    result = "No Card Number. Try again.";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else if(cardNo.length()<16 || cardNo.length()>19){
+                    result = "Invalid Card Number Length. Try again.";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else if(!cardNo.matches("^((4\\d{3})|(5[1-5]\\d{2}))(-?|\\040?)(\\d{4}(-?|\\040?)){3}|^(3[4,7]\\d{2})(-?|\\040?)\\d{6}(-?|\\040?)\\d{5}")){
+                    result = "Invalid Card Number. Try again.";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else if(expYear.equals("")){
+                    result = "No Expiry Year. Try again.";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else if(secCode.equals("")){
+                    result = "No Security Code. Try again.";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else if(!secCode.matches("^[0-9]+$") || secCode.length() != 3){
+                    result = "Invalid Security code. Try again.";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else if(currentDate.compareTo(expDate) > 0){
+                    result = "Card is expired";
+                    response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
+                }else{
+                    HttpSession shoppingCartSession = request.getSession(false);
+                    ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (shoppingCartSession.getAttribute("shoppingCart"));
+                    Map<String,Integer> valid = new HashMap();
+                    
+                    shoppingCart.clear();
+                    shoppingCartSession.setAttribute("shoppingCart", shoppingCart);
+                }
+                
+                
+                
+
         }
     }
 
