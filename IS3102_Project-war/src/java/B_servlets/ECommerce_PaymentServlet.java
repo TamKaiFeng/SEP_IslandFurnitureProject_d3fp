@@ -190,7 +190,7 @@ public class ECommerce_PaymentServlet extends HttpServlet {
                             .queryParam("itemId", item.getId())
                             .queryParam("quantity",item.getQuantity());
                     invocationBuilder = target.request();
-                    resp = invocationBuilder.post(Entity.entity(item,MediaType.APPLICATION_JSON));
+                    resp = invocationBuilder.put(Entity.entity(item,MediaType.APPLICATION_JSON));
                         }
                         if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
                         System.out.println("Line 196" + resp);
