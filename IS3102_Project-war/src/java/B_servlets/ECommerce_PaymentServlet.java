@@ -5,6 +5,7 @@
  */
 package B_servlets;
 
+import HelperClasses.Member;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
@@ -28,8 +29,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -147,17 +150,57 @@ public class ECommerce_PaymentServlet extends HttpServlet {
                     result = "Card is expired";
                     response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?errMsg="+result);
                 }else{
-                    HttpSession shoppingCartSession = request.getSession(false);
-                    ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (shoppingCartSession.getAttribute("shoppingCart"));
-                    Map<String,Integer> valid = new HashMap();
+                    HttpSession currSessions = request.getSession(false);
+                    ArrayList<ShoppingCartLineItem> shoppingCart = (ArrayList<ShoppingCartLineItem>) (currSessions.getAttribute("shoppingCart"));
+                    String memberEmail = (String) currSessions.getAttribute("memberEmail");
+                    Member member = new Member();
+                   
+                    Client client = ClientBuilder.newClient();
+                   
+                    WebTarget target = client.target("http://localhost:8080/IS3102_WebService-Student/webresources/entity.memberentity")
+                    .path("getUserOverview")
+                    .queryParam("email", memberEmail);
                     
-                    shoppingCart.clear();
-                    shoppingCartSession.setAttribute("shoppingCart", shoppingCart);
+                    Invocation.Builder invocationBuilder = target.request();
+                    Response resp = invocationBuilder.get();
+                    
+                    if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+                    String m = resp.readEntity(String.class);//The JsonObject returned from the Web Service
+                    JsonObject jsonObject = Json.createReader(new StringReader(m)).readObject();
+                    member.setId((long)jsonObject.getInt("id"));
+                    double amountDue = 0.0;
+                    
+                    for(ShoppingCartLineItem item : shoppingCart){
+                        amountDue+= item.getPrice()*item.getQuantity();
+                    }
+                    System.out.println("Passed line 176");
+                    target = client.target("http://localhost:8080/IS3102_WebService-Student/webresources/commerce")
+                    .path("createSalesRecord")
+                    .queryParam("memberId", member.getId())
+                    .queryParam("amountDue",amountDue);
+                    
+                    invocationBuilder = target.request();
+                    resp = invocationBuilder.post(Entity.entity(member,MediaType.APPLICATION_JSON));
+                    System.out.println("Passed line 184" + resp);
+                    
+                    if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+                        for(ShoppingCartLineItem item : shoppingCart){
+                            target = client.target("http://localhost:8080/IS3102_WebService-Student/webresources/commerce")
+                            .path("updateStorage")
+                            .queryParam("itemId", item.getId())
+                            .queryParam("quantity",item.getQuantity());
+                    invocationBuilder = target.request();
+                    resp = invocationBuilder.post(Entity.entity(item,MediaType.APPLICATION_JSON));
+                        }
+                        if (resp.getStatus() == Response.Status.OK.getStatusCode()) {
+                        System.out.println("Line 196" + resp);
+                        shoppingCart.clear();
+                        currSessions.setAttribute("shoppingCart", shoppingCart);
+                        response.sendRedirect("/IS3102_Project-war/B/SG/shoppingCart.jsp?goodMsg=Transaction successful");
+                        }
+                    }
                 }
-                
-                
-                
-
+           }        
         }
     }
 

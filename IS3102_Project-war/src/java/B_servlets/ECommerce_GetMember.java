@@ -72,6 +72,7 @@ public class ECommerce_GetMember extends HttpServlet {
                 member.setSecurityAnswer(jsonObject.getString("securityanswer"));
                 member.setAge(jsonObject.getInt("age"));
                 member.setIncome(jsonObject.getInt("income"));
+                member.setId((long)jsonObject.getInt("id"));
                 
                 //Create a session with a Member object
                 session.setAttribute("member", member);
